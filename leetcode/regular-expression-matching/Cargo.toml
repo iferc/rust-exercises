@@ -1,0 +1,23 @@
+[package]
+name = "regular-expression-matching"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+[dev-dependencies]
+criterion = "0.3"
+
+# only used by criterion for comparison purposes
+regex = "1.5.4"
+
+[[bench]]
+name = "lib"
+harness = false
+
+[[bench]]
+name = "external_regex"
+harness = false
