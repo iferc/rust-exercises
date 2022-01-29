@@ -10,5 +10,14 @@ fn regex_multi_star(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, regex_multi_star);
+fn regex_multi_star_max_recursion(c: &mut Criterion) {
+    let pattern = "a*b*c*d*e*f*g*h*i*j*k*l*m*n*o*";
+    let string = "aaaaaaaaaaaaaaaaaaaa";
+
+    c.bench_function("crate regex multi-star with max recursion", |b| {
+        b.iter(|| regex(black_box(pattern), black_box(string)))
+    });
+}
+
+criterion_group!(benches, regex_multi_star, regex_multi_star_max_recursion);
 criterion_main!(benches);
