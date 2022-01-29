@@ -6,9 +6,10 @@ pub enum Token {
     LetterStar(char),
 }
 
-pub fn is_match(tokens: Vec<Token>, string: &str) -> bool {
+pub fn is_match(input_tokens: &[Token], string: &str) -> bool {
     // start with the first token in the pattern
-    let mut tokens = tokens.into_iter();
+    let mut token_count_remaining = input_tokens.len();
+    let mut tokens = input_tokens.iter();
     let mut token = tokens.next();
 
     // start with the first character in the string
@@ -24,12 +25,13 @@ pub fn is_match(tokens: Vec<Token>, string: &str) -> bool {
             // just advance to the next token since any letter can match
             Some(Token::Any) => {
                 token = tokens.next();
+                token_count_remaining -= 1;
             }
 
             Some(Token::AnyStar) => {
                 // recursively call self with the next remaining tokens and string
                 if is_match(
-                    tokens.clone().collect(),
+                    &input_tokens[input_tokens.len() - token_count_remaining + 1..],
                     &string[string.len() - string_count_remaining..],
                 ) {
                     return true;
@@ -38,27 +40,29 @@ pub fn is_match(tokens: Vec<Token>, string: &str) -> bool {
 
             Some(Token::Letter(token_char)) => {
                 // fail if the character doesn't match
-                if token_char != string_char {
+                if token_char != &string_char {
                     return false;
                 }
 
                 // then iterate to the next token
                 token = tokens.next();
+                token_count_remaining -= 1;
             }
 
             // only iterate to the next token when a match is not found
             Some(Token::LetterStar(token_char)) => {
                 // recursively call self with the next remaining tokens and string
                 if is_match(
-                    tokens.clone().collect(),
+                    &input_tokens[input_tokens.len() - token_count_remaining + 1..],
                     &string[string.len() - string_count_remaining..],
                 ) {
                     return true;
                 }
 
-                if token_char != string_char {
+                if token_char != &string_char {
                     // when a match is not found, iterate to the next token
                     token = tokens.next();
+                    token_count_remaining -= 1;
 
                     // but _not_ the next character in the string as we
                     // still need to see if the next thing matches
@@ -125,7 +129,7 @@ pub fn regex(pattern: &str, string: &str) -> bool {
     }
 
     // is match
-    is_match(pattern_tokens, string)
+    is_match(pattern_tokens.as_slice(), string)
 }
 
 #[cfg(test)]
